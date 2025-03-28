@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from database_optimized import StockDatabase  # 修正導入
+from database_optimized import StockDatabase  # 正確導入 StockDatabase 類
 
 # 初始化 StockDatabase
 db = StockDatabase("stocks_optimized.db")
@@ -18,7 +18,7 @@ def plot_top_5_stocks(top_5_tickers):
         if stock_data_batch is not None and ticker in stock_data_batch:
             stock_data = stock_data_batch[ticker]
         else:
-            # 使用 StockDatabase 的 fetch_stock_data
+            # 使用 StockDatabase 的 fetch_stock_data 方法
             end_date = pd.Timestamp.now().strftime('%Y-%m-%d')
             start_date = (pd.Timestamp.now() - pd.Timedelta(days=70)).strftime('%Y-%m-%d')
             stock_data_dict = db.fetch_stock_data([ticker], start_date, end_date)
@@ -107,7 +107,7 @@ def plot_breakout_stocks(breakout_tickers, consol_days):
         if stock_data_batch is not None and ticker in stock_data_batch:
             stock_data = stock_data_batch[ticker]
         else:
-            # 使用 StockDatabase 的 fetch_stock_data
+            # 使用 StockDatabase 的 fetch_stock_data 方法
             end_date = pd.Timestamp.now().strftime('%Y-%m-%d')
             start_date = (pd.Timestamp.now() - pd.Timedelta(days=70)).strftime('%Y-%m-%d')
             stock_data_dict = db.fetch_stock_data([ticker], start_date, end_date)
