@@ -7,6 +7,7 @@ from visualize import plot_top_5_stocks, plot_breakout_stocks
 import time
 import logging
 from typing import List, Dict, Optional
+from datetime import datetime, timedelta
 
 # 配置
 DB_PATH = "stocks_optimized.db"
@@ -24,6 +25,10 @@ db, fetcher, screener = init_components()
 
 # 頁面佈局
 st.title("優化版 Qullamaggie Breakout Screener")
+
+# 初始化 tickers
+if 'tickers' not in st.session_state:
+    st.session_state['tickers'] = []
 
 # 數據更新面板
 with st.expander("數據更新設置"):
@@ -86,10 +91,10 @@ def update_tickers(tickers: List[str]):
         # 獲取最後更新日期
         last_updated = db.get_ticker_last_updated(ticker)
         start_date = (
-            (last_updated + timedelta(days=1)).strftime('%Y-%m-%d') 
-            if last_updated else None
-        end_date = datetime.now().strftime('%Y-%m-%d')
+            (last_updated + timedelta(days=1)).strftime('%Y-%m-%d')
+            if last_updated else '2020-01-01'  # 提供默認開始日期
         )
+        end_date = datetime.now().strftime('%Y-%m-%d')
         
         # 從API獲取數據
         data, source = fetcher.fetch_data(ticker, start_date, end_date)
@@ -105,6 +110,13 @@ if update_all and 'tickers' in st.session_state:
 
 if update_selected and selected_tickers:
     update_tickers(selected_tickers)
+
+# 股票池函數（需自行實現或替換）
+def get_nasdaq_100() -> List[str]:
+    return pd.read_html('https://en.wikipedia.org/wiki/NASDAQ-100')[4]['Ticker'].tolist()
+
+def get_sp500() -> List[str]:
+    return pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]['Symbol'].tolist()
 
 # 篩選邏輯
 if submit:
