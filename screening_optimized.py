@@ -98,6 +98,7 @@ class StockScreener:
                 (rise_67 >= min_rise_67) & 
                 (consolidation_range <= max_range) & 
                 (adr >= min_adr)
+            )
             
             if not mask.any():
                 return None
