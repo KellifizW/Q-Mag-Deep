@@ -100,7 +100,7 @@ class StockDatabase:
                 (
                     date.strftime('%Y-%m-%d'), ticker,
                     row['Open'], row['High'], row['Low'], 
-                    row['Close'], row['Adj Close'], row['Volume'],  -- 改回 Adj Close
+                    row['Close'], row['Adj Close'], row['Volume'],  # -- 改回 Adj Close
                     row['MA10'], row['EMA12'], row['EMA26'],
                     row['MACD'], row['MACD_Signal'], row['MACD_Hist']
                 )
