@@ -4,9 +4,6 @@ import numpy as np
 from functools import lru_cache
 from datetime import datetime, timedelta
 import threading
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 import logging
 from typing import List, Dict, Optional, Tuple
 
@@ -24,25 +21,7 @@ class StockDatabase:
     def __init__(self, db_path: str = "stocks_optimized.db"):
         self.db_path = db_path
         self._init_db()
-        self.session = self._create_session()
         self.lock = threading.Lock()
-        
-    def _create_session(self):
-        """創建帶重試機制的requests session"""
-        session = requests.Session()
-        retry = Retry(
-            total=5,
-            backoff_factor=1,
-            status_forcelist=[500, 502, 503, 504]
-        )
-        adapter = HTTPAdapter(
-            max_retries=retry,
-            pool_connections=20,
-            pool_maxsize=20
-        )
-        session.mount('http://', adapter)
-        session.mount('https://', adapter)
-        return session
         
     def _init_db(self):
         """初始化數據庫結構"""
@@ -57,7 +36,7 @@ class StockDatabase:
                     High REAL, 
                     Low REAL, 
                     Close REAL, 
-                    Adj_Close REAL, 
+                    "Adj Close" REAL,  -- 改回 Adj Close
                     Volume INTEGER,
                     MA10 REAL,
                     EMA12 REAL,
@@ -121,7 +100,7 @@ class StockDatabase:
                 (
                     date.strftime('%Y-%m-%d'), ticker,
                     row['Open'], row['High'], row['Low'], 
-                    row['Close'], row['Adj Close'], row['Volume'],
+                    row['Close'], row['Adj Close'], row['Volume'],  -- 改回 Adj Close
                     row['MA10'], row['EMA12'], row['EMA26'],
                     row['MACD'], row['MACD_Signal'], row['MACD_Hist']
                 )
