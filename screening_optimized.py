@@ -29,7 +29,7 @@ class StockScreener:
         start_date = (pd.Timestamp.now() - pd.Timedelta(days=180)).strftime('%Y-%m-%d')
         
         # 批量獲取數據
-        stock_data = self.db.data_fetcher(tickers, start_date, end_date)
+        stock_data = self.db.fetch_stock_data(tickers, start_date, end_date)  # 修正為 fetch_stock_data
         
         # 多線程分析
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
