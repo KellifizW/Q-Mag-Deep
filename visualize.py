@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from database_optimized import fetch_stock
+from database_optimized import fetch_stock_data
 
 def plot_top_5_stocks(top_5_tickers):
     """繪製前 5 名股票的走勢圖（包含股價、成交量、10 日均線和 MACD）"""
