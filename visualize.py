@@ -1,9 +1,11 @@
-# visualize.py
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from database_optimized import fetch_stock_data
+from database_optimized import StockDatabase  # 修正導入
+
+# 初始化 StockDatabase
+db = StockDatabase("stocks_optimized.db")
 
 def plot_top_5_stocks(top_5_tickers):
     """繪製前 5 名股票的走勢圖（包含股價、成交量、10 日均線和 MACD）"""
@@ -13,14 +15,17 @@ def plot_top_5_stocks(top_5_tickers):
         st.write(f"正在處理股票 {ticker}...")
         
         # 優先使用批量數據
-        if stock_data_batch is not None and ticker in stock_data_batch.columns.get_level_values(1):
+        if stock_data_batch is not None and ticker in stock_data_batch:
             stock_data = stock_data_batch[ticker]
-            error = None
         else:
-            stock_data, error = fetch_stock_data(ticker, trading_days=70)
+            # 使用 StockDatabase 的 fetch_stock_data
+            end_date = pd.Timestamp.now().strftime('%Y-%m-%d')
+            start_date = (pd.Timestamp.now() - pd.Timedelta(days=70)).strftime('%Y-%m-%d')
+            stock_data_dict = db.fetch_stock_data([ticker], start_date, end_date)
+            stock_data = stock_data_dict.get(ticker, pd.DataFrame())
         
-        if stock_data is None or stock_data.empty:
-            st.error(f"無法繪製 {ticker} 的圖表：{error if error else '數據為空'}")
+        if stock_data.empty:
+            st.error(f"無法繪製 {ticker} 的圖表：數據為空")
             continue
         
         st.write(f"{ticker} 數據長度：{len(stock_data)} 筆")
@@ -34,8 +39,8 @@ def plot_top_5_stocks(top_5_tickers):
         
         try:
             stock_data = stock_data.dropna()
-            if len(stock_data) < 10:
-                st.error(f"清理後 {ticker} 的數據長度 {len(stock_data)} 小於最小要求 10")
+            if len(stock_data) < 26:  # EMA26 需要至少 26 筆數據
+                st.error(f"清理後 {ticker} 的數據長度 {len(stock_data)} 小於最小要求 26")
                 continue
             
             dates = [date.strftime("%Y-%m-%d") for date in stock_data.index]
@@ -99,14 +104,17 @@ def plot_breakout_stocks(breakout_tickers, consol_days):
     for ticker in breakout_tickers:
         st.write(f"正在處理突破股票 {ticker}...")
         
-        if stock_data_batch is not None and ticker in stock_data_batch.columns.get_level_values(1):
+        if stock_data_batch is not None and ticker in stock_data_batch:
             stock_data = stock_data_batch[ticker]
-            error = None
         else:
-            stock_data, error = fetch_stock_data(ticker, trading_days=70)
+            # 使用 StockDatabase 的 fetch_stock_data
+            end_date = pd.Timestamp.now().strftime('%Y-%m-%d')
+            start_date = (pd.Timestamp.now() - pd.Timedelta(days=70)).strftime('%Y-%m-%d')
+            stock_data_dict = db.fetch_stock_data([ticker], start_date, end_date)
+            stock_data = stock_data_dict.get(ticker, pd.DataFrame())
         
-        if stock_data is None or stock_data.empty:
-            st.error(f"無法繪製 {ticker} 的圖表：{error if error else '數據為空'}")
+        if stock_data.empty:
+            st.error(f"無法繪製 {ticker} 的圖表：數據為空")
             continue
         
         min_required_length = max(consol_days + 1, 26)
