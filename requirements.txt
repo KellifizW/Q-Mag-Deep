@@ -1,0 +1,7 @@
+streamlit
+pandas
+yfinance
+pandas_market_calendars
+plotly
+pygit2
+lxml
