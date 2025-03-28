@@ -89,6 +89,7 @@ def update_tickers(tickers: List[str]):
             (last_updated + timedelta(days=1)).strftime('%Y-%m-%d') 
             if last_updated else None
         end_date = datetime.now().strftime('%Y-%m-%d')
+        )
         
         # 從API獲取數據
         data, source = fetcher.fetch_data(ticker, start_date, end_date)
